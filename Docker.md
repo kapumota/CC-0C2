@@ -1,4 +1,4 @@
-### Docker.md
+### Intrucciones docker para CC0C2
 
 Guía rápida para ejecutar la **Semana 1** en un entorno reproducible con Docker.
 
@@ -67,7 +67,7 @@ docker run -it --rm `
 docker run -it --rm -p 8888:8888 -v %cd%:/workspace nlp
 ```
 
-##### 3.2 Montar solo `Semana1`
+##### 3.2 Montar solo para la `Semana 1`
 
 **Linux/macOS/Git Bash**
 ```bash
@@ -113,9 +113,9 @@ pip install -r requirements-base.txt -r requirements-optional.txt
 - `requirements-base.txt`: núcleo del entorno, ciencia de datos, PyTorch CPU, NLP clásico y moderno, `transformers`, `datasets`, `evaluate`, `spaCy`, `NLTK` y utilidades generales.
 - `requirements-optional.txt`: retrieval, embeddings, PEFT, alignment ligero, multimodalidad, demos y servicios simples.
 
-#### 6. Qué usar para Semana 1
+#### 6. Qué usar para la Semana 1
 
-Para **Semana 1** puedes trabajar de dos formas:
+Para la **Semana 1** puedes trabajar de dos formas:
 
 - **Con Docker**: construye la imagen y ya tendrás el entorno listo.
 - **Con pip local**: instala al menos `requirements-base.txt`.
