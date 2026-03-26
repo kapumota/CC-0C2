@@ -13,7 +13,7 @@ NLP/
 ├── verify_env.ipynb
 ├── .dockerignore
 └── Semana1/
-    ├── Cuaderno1-MCC.ipynb
+    ├── Cuaderno1-CC0C2.ipynb
     └── Enlaces.md
 ```
 
@@ -120,7 +120,7 @@ Para la **Semana 1** puedes trabajar de dos formas:
 - **Con Docker**: construye la imagen y ya tendrás el entorno listo.
 - **Con pip local**: instala al menos `requirements-base.txt`.
 
-Por ejemplo `Cuaderno1-MCC.ipynb` y `Enlaces.md` quedan dentro de `Semana/`.
+Por ejemplo `Cuaderno1-CC0C2.ipynb` y `Enlaces.md` quedan dentro de `Semana/`.
 
 #### 7. Validar el entorno
 
