@@ -129,9 +129,9 @@ Desarrollar los ejercicios del cuaderno para analizar, comparar e interpretar di
   * `tau ∈ {0.1,0.2,0.5}`
 * Luego fijar `tau` y cambiar augmentations:
 
-  * solo ruido
-  * solo masking
-  * ruido + masking
+  * Solo ruido
+  * Solo masking
+  * Ruido + masking
 * Evaluar con few-shot.
 * Comparar resultados.
 * Concluir cómo las augmentations definen las invariancias aprendidas por el embedding.
@@ -148,13 +148,13 @@ Desarrollar los ejercicios del cuaderno para analizar, comparar e interpretar di
 * Añadir opcionalmente penalidad por chocar con una pared.
 * Para cada configuración reportar:
 
-  * curva de retorno promedio móvil
-  * política final impresa
+  * Curva de retorno promedio móvil
+  * Política final impresa
 * Interpretar si la política:
 
-  * busca la meta de forma más agresiva
-  * evita trampas antes
-  * cambia su estilo de comportamiento
+  * Busca la meta de forma más agresiva
+  * Evita trampas antes
+  * Cambia su estilo de comportamiento
 
 #### Ejercicio 10. Epsilon-greedy: lineal vs exponencial
 
@@ -168,25 +168,25 @@ Desarrollar los ejercicios del cuaderno para analizar, comparar e interpretar di
 * Compararlo contra el decaimiento exponencial del baseline.
 * Reportar:
 
-  * velocidad de convergencia
-  * episodio en el que el retorno se estabiliza
-  * varianza entre 3 semillas
+  * Velocidad de convergencia
+  * Episodio en el que el retorno se estabiliza
+  * Varianza entre 3 semillas
 * Concluir qué estrategia de exploración es más robusta.
 
 ### Resultado final
 
 **Se pide entregar:**
 
-* hipótesis inicial
-* experimento realizado
-* resultados obtenidos
-* interpretación de resultados
-* conclusión breve
+* Hipótesis inicial
+* Experimento realizado
+* Resultados obtenidos
+* Interpretación de resultados
+* Conclusión breve.
 
 ### Presentación final
 
 **Se pide presentar:**
 
-* qué ejercicio se trabajó
-* qué resultados se obtuvieron
-* qué se aprendió del método evaluado.
+* Qué ejercicio se trabajó
+* Qué resultados se obtuvieron
+* Qué se aprendió del método evaluado.
