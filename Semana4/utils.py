@@ -14,6 +14,7 @@ import pandas as pd
 
 import time
 
+
 def visualize2DSoftmax(X, y, model):
     """Función para visualizar la frontera de clasificación de un modelo aprendido sobre un conjunto 2-D.
 
@@ -22,148 +23,199 @@ def visualize2DSoftmax(X, y, model):
     y -- arreglo de numpy con forma (N,), que contiene valores "0" o "1" para dos clases distintas.
     model -- objeto PyTorch Module que representa el clasificador a visualizar.
     """
-    x_min = np.min(X[:,0]) - 0.5
-    x_max = np.max(X[:,0]) + 0.5
-    y_min = np.min(X[:,1]) - 0.5
-    y_max = np.max(X[:,1]) + 0.5
+    x_min = np.min(X[:, 0]) - 0.5
+    x_max = np.max(X[:, 0]) + 0.5
+    y_min = np.min(X[:, 1]) - 0.5
+    y_max = np.max(X[:, 1]) + 0.5
     xv, yv = np.meshgrid(
         np.linspace(x_min, x_max, num=20),
         np.linspace(y_min, y_max, num=20),
         indexing='ij'
     )
-    xy_v = np.hstack((xv.reshape(-1,1), yv.reshape(-1,1)))
+    xy_v = np.hstack((xv.reshape(-1, 1), yv.reshape(-1, 1)))
     with torch.no_grad():
         preds = model(torch.tensor(xy_v, dtype=torch.float32))
         preds = F.softmax(preds, dim=1).numpy()
 
     cs = plt.contourf(
-        xv, yv, preds[:,0].reshape(20,20),
-        levels=np.linspace(0,1,num=20), cmap=plt.cm.RdYlBu
+        xv, yv, preds[:, 0].reshape(20, 20),
+        levels=np.linspace(0, 1, num=20), cmap=plt.cm.RdYlBu
     )
-    sns.scatterplot(x=X[:,0], y=X[:,1], hue=y, style=y, ax=cs.ax)
+    sns.scatterplot(x=X[:, 0], y=X[:, 1], hue=y, style=y, ax=cs.ax)
 
 
-def run_epoch(model, optimizer, data_loader, loss_func, device, results, score_funcs, prefix="", desc=None):
+def run_epoch(
+    model,
+    optimizer,
+    data_loader,
+    loss_func,
+    device,
+    results,
+    score_funcs,
+    prefix="",
+    desc=None,
+    disable_tqdm=False
+):
     """
-    model -- modelo de PyTorch / "Module" para ejecutar durante una época
-    optimizer -- objeto que actualizará los pesos de la red
-    data_loader -- DataLoader que devuelve tuplas (entrada, etiqueta)
-    loss_func -- función de pérdida que recibe la salida del modelo y las etiquetas
-    device -- dispositivo de cómputo donde se realizará el entrenamiento
-    score_funcs -- diccionario de métricas para evaluar el rendimiento
-    prefix -- prefijo para guardar resultados dentro del diccionario _results_
-    desc -- descripción para la barra de progreso
+    Ejecuta una época de entrenamiento o evaluación.
+
+    model -- modelo de PyTorch / Module
+    optimizer -- optimizador de PyTorch
+    data_loader -- DataLoader con tuplas (entrada, etiqueta)
+    loss_func -- función de pérdida
+    device -- dispositivo de cómputo
+    results -- diccionario donde se guardan métricas
+    score_funcs -- diccionario de funciones de evaluación
+    prefix -- prefijo para guardar métricas: 'train', 'test', etc.
+    desc -- descripción para tqdm
+    disable_tqdm -- si True, oculta la barra de progreso
     """
     running_loss = []
     y_true = []
     y_pred = []
+
     start = time.time()
 
-    for inputs, labels in tqdm(data_loader, desc=desc, leave=False):
-        # Mueve el lote al dispositivo que estamos usando.
+    for inputs, labels in tqdm(data_loader, desc=desc, leave=False, disable=disable_tqdm):
         inputs = moveTo(inputs, device)
         labels = moveTo(labels, device)
 
-        y_hat = model(inputs)  # aquí se calcula f_Θ(x(i))
-        # Calcula la pérdida.
+        if model.training:
+            optimizer.zero_grad(set_to_none=True)
+
+        y_hat = model(inputs)
         loss = loss_func(y_hat, labels)
 
         if model.training:
             loss.backward()
             optimizer.step()
-            optimizer.zero_grad()
 
-        # Guardamos información útil para análisis posterior.
         running_loss.append(loss.item())
 
         if len(score_funcs) > 0 and isinstance(labels, torch.Tensor):
-            # Mueve etiquetas y predicciones a CPU para calcular métricas/guardar resultados
-            labels = labels.detach().cpu().numpy()
-            y_hat = y_hat.detach().cpu().numpy()
+            labels_np = labels.detach().cpu().numpy()
+            y_hat_np = y_hat.detach().cpu().numpy()
 
-            # Acumula predicciones y etiquetas
-            y_true.extend(labels.tolist())
-            y_pred.extend(y_hat.tolist())
+            y_true.extend(labels_np.tolist())
+            y_pred.extend(y_hat_np.tolist())
 
-    # Fin de la época
     end = time.time()
 
     y_pred = np.asarray(y_pred)
-    if len(y_pred.shape) == 2 and y_pred.shape[1] > 1:
-        # Problema de clasificación: convertir probabilidades/logits a etiquetas
-        y_pred = np.argmax(y_pred, axis=1)
-    # En otro caso, asumimos que es un problema de regresión
 
-    results[prefix + " loss"].append(np.mean(running_loss))
+    if len(y_pred) > 0:
+        if len(y_pred.shape) == 2 and y_pred.shape[1] > 1:
+            y_pred = np.argmax(y_pred, axis=1)
+        elif len(y_pred.shape) == 2 and y_pred.shape[1] == 1:
+            y_pred = y_pred.reshape(-1)
+
+    epoch_loss = float(np.mean(running_loss)) if len(running_loss) > 0 else float("nan")
+    results[prefix + " loss"].append(epoch_loss)
+
     for name, score_func in score_funcs.items():
         try:
             results[prefix + " " + name].append(score_func(y_true, y_pred))
-        except:
-            results[prefix + " " + name].append(float("NaN"))
+        except Exception:
+            results[prefix + " " + name].append(float("nan"))
 
-    return end - start  # tiempo invertido en la época
+    return end - start
 
 
-def train_simple_network(model, loss_func, train_loader, test_loader=None, score_funcs=None,
-                         epochs=50, device="cpu", checkpoint_file=None, lr=0.001):
-    """Entrena redes neuronales simples.
-
-    Argumentos:
-    model -- modelo de PyTorch / "Module" a entrenar
-    loss_func -- función de pérdida que recibe salida y etiquetas
-    train_loader -- DataLoader con pares (entrada, etiqueta)
-    test_loader -- DataLoader opcional para evaluar después de cada época
-    score_funcs -- diccionario de métricas de evaluación
-    epochs -- número de épocas de entrenamiento
-    device -- dispositivo de cómputo
+def train_simple_network(
+    model,
+    loss_func,
+    train_loader,
+    test_loader=None,
+    score_funcs=None,
+    epochs=50,
+    device="cpu",
+    checkpoint_file=None,
+    lr=0.001,
+    disable_tqdm=False,
+    print_total_time=True
+):
     """
+    Entrena una red neuronal simple.
+
+    model -- modelo de PyTorch / Module
+    loss_func -- función de pérdida
+    train_loader -- DataLoader de entrenamiento
+    test_loader -- DataLoader opcional de prueba
+    score_funcs -- diccionario de métricas
+    epochs -- número de épocas
+    device -- 'cpu' o 'cuda'
+    checkpoint_file -- ruta opcional para guardar checkpoint
+    lr -- learning rate
+    disable_tqdm -- si True, oculta barras de progreso
+    print_total_time -- si True, imprime el tiempo total al final
+    """
+    if score_funcs is None:
+        score_funcs = {}
+
     to_track = ["epoch", "total time", "train loss"]
     if test_loader is not None:
         to_track.append("test loss")
+
     for eval_score in score_funcs:
         to_track.append("train " + eval_score)
         if test_loader is not None:
             to_track.append("test " + eval_score)
 
-    total_train_time = 0  # tiempo total acumulado en entrenamiento
-    results = {}
+    results = {item: [] for item in to_track}
+    total_train_time = 0.0
 
-    # Inicializa cada métrica con una lista vacía
-    for item in to_track:
-        results[item] = []
-
-    # SGD = descenso de gradiente estocástico
-    optimizer = torch.optim.SGD(model.parameters(), lr=0.001)
-
-    # Coloca el modelo en el recurso de cómputo correcto
+    optimizer = torch.optim.SGD(model.parameters(), lr=lr)
     model.to(device)
 
-    for epoch in tqdm(range(epochs), desc="Epoch"):
-        model = model.train()  # pone el modelo en modo entrenamiento
+    for epoch in tqdm(range(epochs), desc="Epoch", disable=disable_tqdm):
+        model.train()
 
-        total_train_time += run_epoch(
-            model, optimizer, train_loader, loss_func, device,
-            results, score_funcs, prefix="train", desc="Training"
+        epoch_train_time = run_epoch(
+            model=model,
+            optimizer=optimizer,
+            data_loader=train_loader,
+            loss_func=loss_func,
+            device=device,
+            results=results,
+            score_funcs=score_funcs,
+            prefix="train",
+            desc="Training",
+            disable_tqdm=disable_tqdm
         )
 
-        results["total time"].append(total_train_time)
+        total_train_time += epoch_train_time
         results["epoch"].append(epoch)
+        results["total time"].append(total_train_time)
 
         if test_loader is not None:
-            model = model.eval()
+            model.eval()
             with torch.no_grad():
                 run_epoch(
-                    model, optimizer, test_loader, loss_func, device,
-                    results, score_funcs, prefix="test", desc="Testing"
+                    model=model,
+                    optimizer=optimizer,
+                    data_loader=test_loader,
+                    loss_func=loss_func,
+                    device=device,
+                    results=results,
+                    score_funcs=score_funcs,
+                    prefix="test",
+                    desc="Testing",
+                    disable_tqdm=disable_tqdm
                 )
 
-    if checkpoint_file is not None:
-        torch.save({
-            'epoch': epoch,
-            'model_state_dict': model.state_dict(),
-            'optimizer_state_dict': optimizer.state_dict(),
-            'results': results
-        }, checkpoint_file)
+        if checkpoint_file is not None:
+            torch.save(
+                {
+                    "epoch": epoch,
+                    "model_state_dict": model.state_dict(),
+                    "optimizer_state_dict": optimizer.state_dict(),
+                    "results": results
+                },
+                checkpoint_file
+            )
+
+    if print_total_time:
+        print(f"Tiempo total de entrenamiento: {total_train_time:.2f} segundos")
 
     return pd.DataFrame.from_dict(results)
 
@@ -221,6 +273,8 @@ def moveTo(obj, device):
     device: dispositivo de cómputo al que se moverán los objetos
     """
     if hasattr(obj, "to"):
+        if isinstance(obj, torch.Tensor):
+            return obj.to(device, non_blocking=True)
         return obj.to(device)
     elif isinstance(obj, list):
         return [moveTo(x, device) for x in obj]
@@ -239,7 +293,8 @@ def moveTo(obj, device):
 
 def train_network(model, loss_func, train_loader, val_loader=None, test_loader=None, score_funcs=None,
                   epochs=50, device="cpu", checkpoint_file=None,
-                  lr_schedule=None, optimizer=None, disable_tqdm=False):
+                  lr_schedule=None, optimizer=None, disable_tqdm=False,
+                  print_total_time=True):
     """Entrena redes neuronales.
 
     Argumentos:
@@ -253,6 +308,8 @@ def train_network(model, loss_func, train_loader, val_loader=None, test_loader=N
     device -- dispositivo de cómputo
     lr_schedule -- scheduler para modificar la tasa de aprendizaje durante el entrenamiento
     optimizer -- optimizador a utilizar
+    disable_tqdm -- si True, oculta las barras de progreso
+    print_total_time -- si True, imprime el tiempo total al final
     """
     if score_funcs is None:
         score_funcs = {}
@@ -270,43 +327,52 @@ def train_network(model, loss_func, train_loader, val_loader=None, test_loader=N
         if test_loader is not None:
             to_track.append("test " + eval_score)
 
-    total_train_time = 0
-    results = {}
-
-    # Inicializa todas las listas de resultados
-    for item in to_track:
-        results[item] = []
+    total_train_time = 0.0
+    results = {item: [] for item in to_track}
 
     if optimizer is None:
-        # AdamW es un buen optimizador por defecto
         optimizer = torch.optim.AdamW(model.parameters())
         del_opt = True
     else:
         del_opt = False
 
-    # Coloca el modelo en el dispositivo correcto
     model.to(device)
 
     for epoch in tqdm(range(epochs), desc="Epoch", disable=disable_tqdm):
-        model = model.train()  # modo entrenamiento
+        model.train()
 
         total_train_time += run_epoch(
-            model, optimizer, train_loader, loss_func, device,
-            results, score_funcs, prefix="train", desc="Training"
+            model=model,
+            optimizer=optimizer,
+            data_loader=train_loader,
+            loss_func=loss_func,
+            device=device,
+            results=results,
+            score_funcs=score_funcs,
+            prefix="train",
+            desc="Training",
+            disable_tqdm=disable_tqdm
         )
 
         results["epoch"].append(epoch)
         results["total time"].append(total_train_time)
 
         if val_loader is not None:
-            model = model.eval()  # modo evaluación: no actualiza pesos
+            model.eval()
             with torch.no_grad():
                 run_epoch(
-                    model, optimizer, val_loader, loss_func, device,
-                    results, score_funcs, prefix="val", desc="Validating"
+                    model=model,
+                    optimizer=optimizer,
+                    data_loader=val_loader,
+                    loss_func=loss_func,
+                    device=device,
+                    results=results,
+                    score_funcs=score_funcs,
+                    prefix="val",
+                    desc="Validating",
+                    disable_tqdm=disable_tqdm
                 )
 
-        # En PyTorch, por convención, el scheduler se actualiza después de cada época
         if lr_schedule is not None:
             if isinstance(lr_schedule, torch.optim.lr_scheduler.ReduceLROnPlateau):
                 lr_schedule.step(results["val loss"][-1])
@@ -314,23 +380,34 @@ def train_network(model, loss_func, train_loader, val_loader=None, test_loader=N
                 lr_schedule.step()
 
         if test_loader is not None:
-            model = model.eval()
+            model.eval()
             with torch.no_grad():
                 run_epoch(
-                    model, optimizer, test_loader, loss_func, device,
-                    results, score_funcs, prefix="test", desc="Testing"
+                    model=model,
+                    optimizer=optimizer,
+                    data_loader=test_loader,
+                    loss_func=loss_func,
+                    device=device,
+                    results=results,
+                    score_funcs=score_funcs,
+                    prefix="test",
+                    desc="Testing",
+                    disable_tqdm=disable_tqdm
                 )
 
         if checkpoint_file is not None:
             torch.save({
-                'epoch': epoch,
-                'model_state_dict': model.state_dict(),
-                'optimizer_state_dict': optimizer.state_dict(),
-                'results': results
+                "epoch": epoch,
+                "model_state_dict": model.state_dict(),
+                "optimizer_state_dict": optimizer.state_dict(),
+                "results": results
             }, checkpoint_file)
 
     if del_opt:
         del optimizer
+
+    if print_total_time:
+        print(f"Tiempo total de entrenamiento: {total_train_time:.2f} segundos")
 
     return pd.DataFrame.from_dict(results)
 
@@ -422,13 +499,10 @@ class ApplyAttention(nn.Module):
         - segundo tensor: pesos de atención (B, T, 1)
         """
         if mask is not None:
-            # Asignar un valor muy negativo a posiciones inválidas
             attention_scores[~mask] = -1000.0
 
-        # Convertir puntajes en pesos con softmax
         weights = F.softmax(attention_scores, dim=1)
 
-        # Combinar estados según los pesos
         final_context = (states * weights).sum(dim=1)
         return final_context, weights
 
@@ -473,7 +547,6 @@ class AdditiveAttentionScore(nn.Module):
         """
         T = states.size(1)
 
-        # Repite el contexto T veces
         context = torch.stack([context for _ in range(T)], dim=1)
         state_context_combined = torch.cat((states, context), dim=2)
         scores = self.v(torch.tanh(self.w(state_context_combined)))
@@ -494,7 +567,6 @@ class GeneralScore(nn.Module):
         T = states.size(1)
         D = states.size(2)
 
-        # Repite el contexto T veces
         context = torch.stack([context for _ in range(T)], dim=1)
         scores = self.w(states, context)
         return scores
@@ -527,18 +599,15 @@ def getMaskByFill(x, time_dimension=1, fill=0):
     retorna: tensor booleano con forma (B, T), donde True indica
     que el elemento temporal es válido.
     """
-    # Omitimos la dimensión 0 porque corresponde al batch
     to_sum_over = list(range(1, len(x.shape)))
 
     if time_dimension in to_sum_over:
         to_sum_over.remove(time_dimension)
 
     with torch.no_grad():
-        # Caso especial: si la forma es (B, D), devolvemos directamente qué valores son válidos
         if len(to_sum_over) == 0:
             return (x != fill)
 
-        # Detecta posiciones no vacías y resumir sobre todas las dimensiones salvo batch y tiempo
         mask = torch.sum((x != fill), dim=to_sum_over) > 0
 
     return mask
@@ -566,10 +635,8 @@ class LanguageNameDataset(Dataset):
         """
         T = len(input_string)
 
-        # Crea tensor para almacenar el resultado
         name_vec = torch.zeros((T), dtype=torch.long)
 
-        # Recorre la cadena y asignar el índice de cada carácter
         for pos, character in enumerate(input_string):
             name_vec[pos] = self.vocabulary[character]
 
@@ -579,14 +646,12 @@ class LanguageNameDataset(Dataset):
         name = self.data[idx]
         label = self.labels[idx]
 
-        # Convertir la clase a tensor
         label_vec = torch.tensor([label], dtype=torch.long)
 
         return self.string2InputVec(name), label
 
 
 def pad_and_pack(batch):
-    # 1, 2 y 3: organiza longitudes, entradas y etiquetas en listas separadas
     input_tensors = []
     labels = []
     lengths = []
@@ -594,18 +659,14 @@ def pad_and_pack(batch):
     for x, y in batch:
         input_tensors.append(x)
         labels.append(y)
-        lengths.append(x.shape[0])  # asumimos forma (T, *)
+        lengths.append(x.shape[0])
 
-    # 4: crea la versión rellenada (padded)
     x_padded = torch.nn.utils.rnn.pad_sequence(input_tensors, batch_first=False)
 
-    # 5: crea la versión empaquetada usando longitudes
     x_packed = torch.nn.utils.rnn.pack_padded_sequence(
         x_padded, lengths, batch_first=False, enforce_sorted=False
     )
 
-    # Convierte etiquetas a tensor
     y_batched = torch.as_tensor(labels, dtype=torch.long)
 
-    # 6: devuelve entrada empaquetada y etiquetas
     return x_packed, y_batched
