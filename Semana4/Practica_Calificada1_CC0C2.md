@@ -1,5 +1,9 @@
 ## Práctica Calificada 1- CC0C2 Procesamiento del Lenguaje Natural
 
+> Fecha de entrega: 23 de abril a las 4:00 pm entregando el url de su repositorio (texto) conteniendo todo lo pedido.
+> 
+> No se aceptan entregas tardías.
+
 ### 1. Modalidad y propósito
 La presente práctica calificada es **individual**. Cada estudiante desarrollará **un proyecto distinto** a partir de los cuadernos 4, 5, 6 y 7 del curso.
 
