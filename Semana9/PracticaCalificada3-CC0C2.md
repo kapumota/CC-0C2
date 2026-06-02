@@ -273,7 +273,7 @@ Preguntas avanzadas obligatorias.
 - ¿Por qué congelar capas puede mejorar estabilidad, pero reducir adaptación?
 - ¿Qué representa cada dimensión de los logits en clasificación?
 - ¿Por qué accuracy puede ocultar errores importantes?
-- ¿Cómo detectarías sobreajuste si solo tienes pocas épocas?
+- ¿Cómo detectarías sobreajuste si solo tienes pocas épocas?.
 
 ### Proyecto 5: continual pre-training, replay y olvido catastrófico
 
@@ -304,7 +304,7 @@ Preguntas avanzadas obligatorias.
 - ¿Qué evidencia mínima mostraría olvido catastrófico?
 - ¿Por qué replay no garantiza conservación perfecta?
 - ¿Qué diferencia hay entre memorizar frases nuevas y adaptarse a un dominio?
-- ¿Cómo separarías mejora real de simple repetición del corpus?
+- ¿Cómo separarías mejora real de simple repetición del corpus?.
 
 ### Proyecto 6: LoRA desde PyTorch
 
@@ -343,7 +343,7 @@ Preguntas avanzadas obligatorias.
 - ¿Qué se pierde si el rank es demasiado pequeño?
 - ¿Qué riesgo aparece si el rank es demasiado grande?
 - ¿Por qué congelar `W0` reduce memoria de entrenamiento?
-- ¿Cómo se relaciona LoRA con la hipótesis de que las adaptaciones viven en subespacios de baja dimensión?
+- ¿Cómo se relaciona LoRA con la hipótesis de que las adaptaciones viven en subespacios de baja dimensión?.
 
 ### Proyecto 7: QLoRA, DPO y ORPO
 
@@ -371,7 +371,7 @@ Preguntas avanzadas obligatorias.
 - ¿Qué papel cumple la política de referencia?
 - ¿Qué puede salir mal si las preferencias están mal construidas?
 - ¿Por qué QLoRA reduce memoria, pero puede introducir degradación numérica?
-- ¿Qué diferencia conceptual hay entre optimizar likelihood y optimizar preferencias?
+- ¿Qué diferencia conceptual hay entre optimizar likelihood y optimizar preferencias?.
 
 ### Proyecto 8: adaptadores
 
@@ -403,7 +403,7 @@ Preguntas avanzadas obligatorias.
 - ¿Qué representa el cuello de botella?
 - ¿Qué diferencia hay entre adaptadores y LoRA?
 - ¿Por qué entrenar pocos parámetros no garantiza mejor generalización?
-- ¿Cómo decidirías el tamaño del bottleneck si tuvieras restricciones de memoria?
+- ¿Cómo decidirías el tamaño del bottleneck si tuvieras restricciones de memoria?.
 
 #### Preguntas transversales obligatorias
 
