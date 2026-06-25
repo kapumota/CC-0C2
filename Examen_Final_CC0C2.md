@@ -4,7 +4,7 @@
 
 La fecha de entrega del examen final será el **16 de julio**.
 
-Cada estudiante deberá presentar obligatoriamente un **repositorio con los resultados del proyecto**. No se aceptará únicamente un archivo comprimido, capturas de pantalla o un cuaderno aislado sin trazabilidad.
+Cada estudiante deberá presentar obligatoriamente un  su **repositorio  los resultados del proyecto**. No se aceptará únicamente un archivo comprimido, capturas de pantalla o un cuaderno aislado sin trazabilidad.
 
 El repositorio debe contener como mínimo:
 
