@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+scikit-learn
+numpy
+prometheus-client
+pydantic
+pytest
+ruff
+httpx
