@@ -1,0 +1,17 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+ENV PYTHONPATH=/app/src
+ENV ADMIN_TOKEN=dev-token
+
+RUN python scripts/build_index.py
+
+EXPOSE 8000
+
+CMD ["uvicorn", "cc0c2_mlops_rag.app:app", "--host", "0.0.0.0", "--port", "8000"]

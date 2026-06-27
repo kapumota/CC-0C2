@@ -1,0 +1,8 @@
+services:
+  mlops-rag:
+    build: .
+    container_name: cc0c2-mlops-rag
+    ports:
+      - "8000:8000"
+    environment:
+      ADMIN_TOKEN: dev-token

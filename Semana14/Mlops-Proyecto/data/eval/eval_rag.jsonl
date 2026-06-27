@@ -1,0 +1,10 @@
+{"query": "cómo funciona un sistema RAG con documentos recuperados", "relevant_doc_ids": ["01_rag.md"]}
+{"query": "qué debe controlar un flujo MLOps antes de promover cambios", "relevant_doc_ids": ["02_mlops.md"]}
+{"query": "qué métricas permiten observar una API de lenguaje", "relevant_doc_ids": ["03_observabilidad.md"]}
+{"query": "por qué no debe quedar abierto el endpoint de reindexado", "relevant_doc_ids": ["04_seguridad.md"]}
+{"query": "cómo se valida un proyecto con Docker y GitHub Actions", "relevant_doc_ids": ["05_despliegue.md"]}
+{"query": "qué diferencia hay entre operar un sistema y solo entrenar un modelo", "relevant_doc_ids": ["02_mlops.md", "05_despliegue.md"]}
+{"query": "qué problema aparece cuando se recupera contexto relacionado pero insuficiente", "relevant_doc_ids": ["01_rag.md"]}
+{"query": "cómo se exponen métricas para detectar degradación del sistema", "relevant_doc_ids": ["03_observabilidad.md"]}
+{"query": "qué riesgos aparecen al guardar consultas sensibles en logs", "relevant_doc_ids": ["04_seguridad.md"]}
+{"query": "qué relación hay entre tokenización y ventana de contexto", "relevant_doc_ids": ["06_distractor_nlp.md"]}
