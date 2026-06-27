@@ -1,4 +1,4 @@
-# Proyecto MLOps / LLMOps - CC0C2
+### Proyecto MLOps / LLMOps - CC0C2
 
 Este proyecto implementa un sistema RAG pequeño, observable y reproducible para mostrar
 cómo un experimento de lenguaje puede convertirse en un servicio operable.
@@ -10,7 +10,7 @@ MLOps/LLMOps:
 documentos -> construcción de índice -> API -> evaluación -> métricas -> Docker -> CI
 ```
 
-## Qué implementa
+#### Qué implementa
 
 - API con FastAPI.
 - Recuperación RAG local basada en TF-IDF.
@@ -27,7 +27,7 @@ documentos -> construcción de índice -> API -> evaluación -> métricas -> Doc
 - Docker Compose.
 - Workflow de GitHub Actions ejecutado desde una subcarpeta del repositorio.
 
-## Arquitectura
+#### Arquitectura
 
 ```text
 data/docs/
@@ -51,7 +51,7 @@ FastAPI
 scripts/evaluate_rag.py
 ```
 
-## Estructura
+#### Estructura
 
 ```text
 Mlops-Proyecto/
@@ -91,7 +91,7 @@ Mlops-Proyecto/
     test_rag.py
 ```
 
-## Instalación local
+#### Instalación local
 
 Desde la raíz del repositorio `CC-0C2`:
 
@@ -111,7 +111,7 @@ source .venv/Scripts/activate
 pip install -r requirements.txt
 ```
 
-## Comandos principales
+#### Comandos principales
 
 ```bash
 make lint
@@ -121,7 +121,7 @@ make eval
 make run
 ```
 
-## Ejecutar API
+#### Ejecutar API
 
 ```bash
 make run
@@ -133,7 +133,7 @@ Luego abrir:
 http://localhost:8000/docs
 ```
 
-## Consultar el sistema
+#### Consultar el sistema
 
 ```bash
 curl -X POST http://localhost:8000/query \
@@ -141,20 +141,20 @@ curl -X POST http://localhost:8000/query \
   -d '{"query": "qué componentes tiene el proyecto MLOps", "top_k": 3}'
 ```
 
-## Reindexar
+#### Reindexar
 
 ```bash
 curl -X POST http://localhost:8000/admin/reindex \
   -H "x-admin-token: dev-token"
 ```
 
-## Ver métricas
+#### Ver métricas
 
 ```bash
 curl http://localhost:8000/metrics
 ```
 
-## Evaluación
+#### Evaluación
 
 ```bash
 make eval
@@ -166,7 +166,7 @@ La evaluación calcula:
 - `recall@3`
 - `MRR`
 
-## Docker
+#### Docker
 
 ```bash
 make docker-build
@@ -179,7 +179,7 @@ Con Docker Compose:
 make compose-up
 ```
 
-## Qué evidencia de MLOps contiene
+#### Qué evidencia de MLOps contiene
 
 Este proyecto contiene evidencia mínima de operación de sistemas ML/LLM:
 
@@ -194,7 +194,7 @@ Este proyecto contiene evidencia mínima de operación de sistemas ML/LLM:
 - Contenedor Docker.
 - CI por subcarpeta.
 
-## Limitaciones
+#### Limitaciones
 
 - Usa TF-IDF, no embeddings densos.
 - No usa un LLM externo para generación.
@@ -204,7 +204,7 @@ Este proyecto contiene evidencia mínima de operación de sistemas ML/LLM:
 - No tiene monitoreo de drift.
 - La autenticación de reindexado es mínima y solo sirve para clase.
 
-## Mejoras sugeridas
+#### Mejoras sugeridas
 
 - Reemplazar TF-IDF por embeddings densos.
 - Agregar evaluación de grounded generation.
