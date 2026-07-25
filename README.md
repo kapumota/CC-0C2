@@ -48,11 +48,11 @@ Al finalizar el curso, el estudiante deberá ser capaz de:
 
 Se asume que el estudiante llega con bases razonables en:
 
-* inteligencia artificial,
-* programación en Python,
-* estructuras de datos y algoritmos,
-* álgebra lineal y probabilidad básica,
-* razonamiento lógico y análisis experimental.
+* Inteligencia artificial,
+* Programación en Python,
+* Estructuras de datos y algoritmos,
+* Álgebra lineal y probabilidad básica,
+* Razonamiento lógico y análisis experimental.
 
 Prerrequisito formal: CC421 Inteligencia Artificial.
 
